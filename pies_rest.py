@@ -11,6 +11,29 @@ def get_db():
         db = g._database = connect_to_database()
     return db
 
+def query_db(query, args=(), one=False):
+    cur = get_db().execute(query, args)
+    rv = cur.fetchall()
+    cur.close()
+    return (rv[0] if rv else None) if one else rv
+
+#
+# DB query example usage:
+#
+# Query a list of results:
+#
+# for cat in query_db('select * from cats'):
+#     print cat['name'], 'has the id', cat['id']
+#
+# Single result:
+#
+# cat = query_db('select * from cats where name = ?', [the_catname], one=True)
+# if cat is None:
+#     print 'No such cat'
+# else:
+#     print the_catname, 'has the id', cat['cat_id']
+
+
 @app.teardown_appcontext
 def close_connection(exception):
     db = getattr(g, '_database', None)
